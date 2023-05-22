@@ -1,20 +1,71 @@
 <!DOCTYPE html>
-<html lang="en" a>
-<head>
-  <meta charset="UTF-8">
-  <title>Discover MO Trails</title>
-</head>
-<body>
+<html>
+  <head>
+    <title>My Map</title>
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAaEvI28nRztHxacoXHNZ9t9FdIppjM_XU&callback=initMap"
+      async
+    ></script>
+    <script>
+      let map;
 
-  <h1>Current Location</h1>
-  <p>IP Address: <span id = "ip-address"></span></p>
-  <p>City: <span id = "city"></span></p>
-  <p>Region: <span id = "region"></span></p>
-  <p>Country:  <span id = "country"></span></p>
-  <p>Latitude: <span id = "latitude"></span></p>
-  <p>Longitude <span id = "longitude"></span></p>
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: 0, lng: 0 },
+          zoom: 8,
+        });
 
-  <script src="geolocation.js"></script>
-</body>
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
 
+              map.setCenter(pos);
+
+              new google.maps.Marker({
+                position: pos,
+                map,
+                title: "Your Location",
+              });
+
+              
+              
+              document.getElementById("latitude").innerHTML = pos.lat;
+              document.getElementById("longitude").innerHTML = pos.lng;
+            },
+            () => {
+              handleLocationError(true, map.getCenter());
+            }
+          );
+        } else {
+          handleLocationError(false, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, pos) {
+        const infoWindow = new google.maps.InfoWindow({
+          content: browserHasGeolocation
+            ? "Error: The Geolocation service failed."
+            : "Error: Your browser doesn't support geolocation.",
+          position: pos,
+        });
+
+        new google.maps.Marker({
+          position: pos,
+          map,
+          title: "Error",
+        });
+
+        infoWindow.open(map);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <p>Latitude: <span id="latitude"></span></p>
+    <p>Longitude: <span id="longitude"></span></p>
+  </body>
 </html>

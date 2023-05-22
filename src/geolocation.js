@@ -1,18 +1,49 @@
-let apiKey = "411f2ff45c380a6fa17d84d2df885892";
-let ipAddress = null;
+let map;
 
-let url = `http://api.ipstack.com/134.201.250.155?access_key=411f2ff45c380a6fa17d84d2df885892`;
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 0, lng: 0 },
+    zoom: 8,
+  });
 
-fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        document.getElementById("ip-address").innerHTML = data.ip;
-        document.getElementById("city").innerHTML = data.city;
-        document.getElementById("region").innerHTML = data.region_name;
-        document.getElementById("country").innerHTML = data.country_name;
-        document.getElementById("latitude").innerHTML = data.latitude;
-        document.getElementById("longitude").innerHTML = data.longitude;
-    })
-    .catch(error => {
-        console.error(error);
-    });
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        map.setCenter(pos);
+
+        new google.maps.Marker({
+          position: pos,
+          map,
+          title: "Your Location",
+        });
+      },
+      () => {
+        handleLocationError(true, map.getCenter(), map);
+      }
+    );
+  } else {
+    handleLocationError(false, map.getCenter(), map);
+  }
+}
+
+function handleLocationError(browserHasGeolocation, pos, map) {
+  const infoWindow = new google.maps.InfoWindow({
+    content: browserHasGeolocation
+      ? "Error: The Geolocation service failed."
+      : "Error: Your browser doesn't support geolocation.",
+    position: pos,
+  });
+
+  new google.maps.Marker({
+    position: pos,
+    map,
+    title: "Error",
+  });
+
+  infoWindow.open(map);
+}
